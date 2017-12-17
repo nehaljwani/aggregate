@@ -1,0 +1,28 @@
+From 254f892a48be74570782bf12803a8a12ad377200 Mon Sep 17 00:00:00 2001
+From: Nehal J Wani <nehaljw.kkd1@gmail.com>
+Date: Sun, 17 Dec 2017 13:28:40 -0600
+Subject: [PATCH] Skip some vcf tests on i386
+
+https://github.com/samtools/htslib/issues/565
+---
+ test/test.pl | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/test/test.pl b/test/test.pl
+index 776e125..4f95d1f 100644
+--- a/test/test.pl
++++ b/test/test.pl
+@@ -36,8 +36,8 @@ my $opts = parse_params();
+ test_view($opts,0);
+ test_view($opts,4);
+ 
+-test_vcf_api($opts,out=>'test-vcf-api.out');
+-test_vcf_sweep($opts,out=>'test-vcf-sweep.out');
++#test_vcf_api($opts,out=>'test-vcf-api.out');
++#test_vcf_sweep($opts,out=>'test-vcf-sweep.out');
+ test_vcf_various($opts);
+ test_bcf_sr_sort($opts);
+ test_command($opts,cmd=>'test-bcf-translate -',out=>'test-bcf-translate.out');
+-- 
+2.14.1
+
