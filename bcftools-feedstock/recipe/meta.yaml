@@ -1,0 +1,62 @@
+{% set version="1.6" %}
+{% set p = 'm2-' if win else '' %}
+{% set n = 'm2w64-' if win else '' %}
+
+package:
+  name: bcftools
+  version: {{ version }}
+
+source:
+  fn: bcftools-{{ version }}.tar.bz2
+  url: https://github.com/samtools/bcftools/releases/download/{{ version }}/bcftools-{{ version }}.tar.bz2
+  sha256: 293010736b076cf684d2873928924fcc3d2c231a091084c2ac23a8045c7df982
+
+build:
+  number: 0
+
+requirements:
+  host:
+    - htslib 1.6.*
+    - {{ n }}zlib
+    - {{ p }}autoconf
+    - {{ p }}automake          # [not win]
+    - {{ p }}automake-wrapper  # [win]
+
+  build:
+    - {{ compiler('c') }}
+
+  # run:
+    # Will be taken care of by run_exports
+    # - zlib
+    # - htslib
+    # Optional dependencies
+    #- matplotlib
+    #- texlive-core
+
+test:
+  commands:
+    - bcftools -h
+    - bcftools --version
+    - bcftools plugin -lv
+    - plot-vcfstats -h
+
+    - conda inspect linkages -p $PREFIX $PKG_NAME  # [not win]
+    - conda inspect objects -p $PREFIX $PKG_NAME   # [osx]
+
+about:
+  home: http://samtools.github.io
+  # The project is dual licensed. But we are not linking against gsl,
+  # so this can be distributed under the MIT License
+  # https://github.com/samtools/bcftools/blob/1.6/INSTALL#L101-L103
+  license: MIT
+  license_family: MIT
+  description: |
+    BCFtools is a set of utilities that manipulate variant calls in the Variant
+    Call Format (VCF) and its binary counterpart BCF. All commands work
+    transparently with both VCFs and BCFs, both uncompressed and
+    BGZF-compressed.  Most commands accept VCF, bgzipped VCF and BCF with
+    filetype detected automatically even when streaming from a pipe. Indexed
+    VCF and BCF will work in all situations. Un-indexed VCF and BCF and streams
+    will work in most, but not all situations.
+  dev_url: https://github.com/samtools/bcftools
+  doc_url: http://samtools.github.io/bcftools
