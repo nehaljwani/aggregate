@@ -23,15 +23,16 @@ source:
 
 build:
   number: 0
-  skip: True  # [not linux64]
+  #  skip: True  # [not linux64]
 
 requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - cmake  # [win]
   host:
     # conda build requirements
-    - bazel >=0.5.4
+    #- bazel >=0.5.4
     - pip
     - python
     - swig
@@ -50,10 +51,10 @@ requirements:
     - astor >=0.6.0
     - absl-py >=0.1.6
     # the following packages are required for testing
-    - portpicker
+    #- portpicker
     - scipy
     - scikit-learn
-    - mkl-devel
+    # - mkl-devel
   run:
     - python
     - termcolor >=1.1.0
