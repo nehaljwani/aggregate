@@ -71,9 +71,6 @@ function write_ctng_package_versions() {
   local _dst="${1}"
 
   declare -a _extras
-  if [[ -n "${ctng_gdb}" ]]; then
-    _extras+=("gdb_version,CT_GDB_VERSION")
-  fi
   if [[ -n "${ctng_duma}" ]]; then
     _extras+=("duma_version,CT_DUMA_VERSION")
   fi
@@ -156,26 +153,6 @@ function write_ctng_config_before() {
     echo "CT_DUMA_SO=y"                                                 >> "${_dst}"
     echo "CT_DUMA_CUSTOM_WRAPPER=y"                                     >> "${_dst}"
   fi
-  if [[ -n ${ctng_gdb} ]]; then
-    echo "CT_DEBUG_gdb=y"                                               >> "${_dst}"
-    if [[ ${ctng_nature} == static ]]; then
-      echo "CT_GDB_NATIVE_STATIC=y"                                     >> "${_dst}"
-    else
-      echo "CT_GDB_NATIVE=y"                                            >> "${_dst}"
-      echo "# CT_GDB_NATIVE_STATIC is not set"                          >> "${_dst}"
-    fi
-    # GDBSERVER has issues with fully static:
-    # x86_64-sarc-linux-gnu-gcc -static -shared -fPIC -Wl,--soname=libinproctrace.so -Wl,--no-undefined -g -O2    -I. -I/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver -I/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver/../common -I/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver/../regformats -I/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver/.. -I/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver/../../include -I/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver/../gnulib/import -Ibuild-gnulib-gdbserver/import  -Wall -Wpointer-arith -Wno-unused -Wunused-value -Wunused-function -Wno-switch -Wno-char-subscripts -Wempty-body -Wunused-but-set-parameter -Wunused-but-set-variable -Wpointer-sign -Wmissing-prototypes -Wdeclaration-after-statement -Wmissing-parameter-type -Wold-style-declaration -Wold-style-definition -Wformat-nonliteral -Wno-missing-prototypes  -DGDBSERVER -static-libstdc++ -static-libgcc  -Wl,--dynamic-list=/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver/proc-service.list -o libinproctrace.so ax-ipa.o tracepoint-ipa.o format-ipa.o utils-ipa.o regcache-ipa.o remote-utils-ipa.o common-utils-ipa.o tdesc-ipa.o print-utils-ipa.o rsp-low-ipa.o errors-ipa.o amd64-linux-ipa.o amd64-avx-linux-ipa.o amd64-avx-mpx-linux-ipa.o amd64-avx512-linux-ipa.o amd64-mpx-linux-ipa.o linux-amd64-ipa.o -ldl -pthread
-    # /home/ray/gcc-native/work/gcc_built/lib/gcc/x86_64-sarc-linux-gnu/6.3.0/../../../../x86_64-sarc-linux-gnu/bin/ld: /home/ray/gcc-native/work/gcc_built/lib/gcc/x86_64-sarc-linux-gnu/6.3.0/crtbeginT.o: relocation R_X86_64_32 against hidden symbol `__TMC_END__' can not be used when making a shared object
-    # /home/ray/gcc-native/work/gcc_built/lib/gcc/x86_64-sarc-linux-gnu/6.3.0/../../../../x86_64-sarc-linux-gnu/bin/ld: final link failed: Nonrepresentable section on output
-    if [[ ${ctng_nature} == static ]]; then
-      echo "CT_GDB_GDBSERVER=n"                                         >> "${_dst}"
-    else
-      echo "CT_GDB_GDBSERVER=y"                                         >> "${_dst}"
-      echo "CT_GDB_GDBSERVER_HAS_IPA_LIB=y"                             >> "${_dst}"
-      echo "CT_GDB_GDBSERVER_STATIC=n"                                  >> "${_dst}"
-    fi
-  fi
   echo "CT_DISABLE_MULTILIB_LIB_OSDIRNAMES=y"                           >> "${_dst}"
   echo "CT_CC_GCC_LIBGOMP=y"                                            >> "${_dst}"
   echo "CT_CC_GCC_LIBQUADMATH=y"                                        >> "${_dst}"
@@ -229,38 +206,14 @@ function write_ctng_config_before() {
     _native_gdb=y
   fi
 
-  if [[ -n "${ctng_gdb}" ]]; then
-    echo "CT_DEBUG_gdb=y"                                               >> "${_dst}"
-    echo "CT_GDB_CROSS=y"                                               >> "${_dst}"
-    if [[ ${ctng_nature} == static ]]; then
-      echo "CT_GDB_CROSS_STATIC=y"                                      >> "${_dst}"
-      echo "CT_GDB_NATIVE_STATIC=y"                                     >> "${_dst}"
-      # GDBSERVER has issues with fully static:
-      # x86_64-sarc-linux-gnu-gcc -static -shared -fPIC -Wl,--soname=libinproctrace.so -Wl,--no-undefined -g -O2    -I. -I/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver -I/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver/../common -I/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver/../regformats -I/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver/.. -I/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver/../../include -I/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver/../gnulib/import -Ibuild-gnulib-gdbserver/import  -Wall -Wpointer-arith -Wno-unused -Wunused-value -Wunused-function -Wno-switch -Wno-char-subscripts -Wempty-body -Wunused-but-set-parameter -Wunused-but-set-variable -Wpointer-sign -Wmissing-prototypes -Wdeclaration-after-statement -Wmissing-parameter-type -Wold-style-declaration -Wold-style-definition -Wformat-nonliteral -Wno-missing-prototypes  -DGDBSERVER -static-libstdc++ -static-libgcc  -Wl,--dynamic-list=/home/ray/gcc-native/work/.build/src/gdb-7.12.1/gdb/gdbserver/proc-service.list -o libinproctrace.so ax-ipa.o tracepoint-ipa.o format-ipa.o utils-ipa.o regcache-ipa.o remote-utils-ipa.o common-utils-ipa.o tdesc-ipa.o print-utils-ipa.o rsp-low-ipa.o errors-ipa.o amd64-linux-ipa.o amd64-avx-linux-ipa.o amd64-avx-mpx-linux-ipa.o amd64-avx512-linux-ipa.o amd64-mpx-linux-ipa.o linux-amd64-ipa.o -ldl -pthread
-      # /home/ray/gcc-native/work/gcc_built/lib/gcc/x86_64-sarc-linux-gnu/6.3.0/../../../../x86_64-sarc-linux-gnu/bin/ld: /home/ray/gcc-native/work/gcc_built/lib/gcc/x86_64-sarc-linux-gnu/6.3.0/crtbeginT.o: relocation R_X86_64_32 against hidden symbol `__TMC_END__' can not be used when making a shared object
-      # /home/ray/gcc-native/work/gcc_built/lib/gcc/x86_64-sarc-linux-gnu/6.3.0/../../../../x86_64-sarc-linux-gnu/bin/ld: final link failed: Nonrepresentable section on output
-      echo "CT_GDB_GDBSERVER=n"                                         >> "${_dst}"
-      echo "CT_BINUTILS_HAS_GOLD=n"                                     >> "${_dst}"
-      echo "CT_BINUTILS_LINKERS_LIST=\"ld\""                            >> "${_dst}"
-    else
-      echo "CT_GDB_CROSS_STATIC=n"                                      >> "${_dst}"
-      echo "CT_GDB_NATIVE_STATIC=n"                                     >> "${_dst}"
-      echo "CT_GDB_GDBSERVER=y"                                         >> "${_dst}"
-      echo "CT_GDB_GDBSERVER_HAS_IPA_LIB=y"                             >> "${_dst}"
-      echo "CT_GDB_GDBSERVER_STATIC=n"                                  >> "${_dst}"
-      echo "CT_BINUTILS_HAS_GOLD=y"                                     >> "${_dst}"
-      echo "CT_BINUTILS_GOLD_SUPPORT=y"                                 >> "${_dst}"
-      # Support for building glibc with gold is not yet complete, never mind really old
-      # versions of glibc. In general it sounds like gold is not ready for prime-time.
-      # https://github.com/bminor/glibc/commit/f300dc7358e785dd92259514f57acd10f695d142
-      # https://github.com/bminor/glibc/commit/19f1a11e7ea2a5082bae9d9a079338c5658ba954
-      echo "CT_BINUTILS_LINKER_LD_GOLD=y"                               >> "${_dst}"
-      echo "CT_BINUTILS_LINKERS_LIST=\"ld,gold\""                       >> "${_dst}"
-    fi
-    echo "CT_GDB_NATIVE=${_native_gdb}"                                 >> "${_dst}"
-    echo "CT_GDB_CROSS_PYTHON=n"                                        >> "${_dst}"
-    echo "CT_GDB_HAS_PYTHON=n"                                          >> "${_dst}"
-  fi
+  echo "CT_BINUTILS_HAS_GOLD=y"                                         >> "${_dst}"
+  echo "CT_BINUTILS_GOLD_SUPPORT=y"                                     >> "${_dst}"
+  # Support for building glibc with gold is not yet complete, never mind really old
+  # versions of glibc. In general it sounds like gold is not ready for prime-time.
+  # https://github.com/bminor/glibc/commit/f300dc7358e785dd92259514f57acd10f695d142
+  # https://github.com/bminor/glibc/commit/19f1a11e7ea2a5082bae9d9a079338c5658ba954
+  echo "CT_BINUTILS_LINKER_LD_GOLD=y"                                   >> "${_dst}"
+  echo "CT_BINUTILS_LINKERS_LIST=\"ld,gold\""                           >> "${_dst}"
 
   if [[ -n "${ctng_duma}" ]]; then
     echo "CT_DEBUG_duma=y"                                              >> "${_dst}"

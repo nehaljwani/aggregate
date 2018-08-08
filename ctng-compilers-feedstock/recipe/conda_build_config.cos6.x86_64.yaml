@@ -11,9 +11,9 @@ gnu:
 ctng_kernel:
   - 2.6.32
 ctng_binutils:
-  - 2.28.1
+  - 2.30
 ctng_gcc:
-  - 7.2.0
+  - 8.1.0
 ctng_gmp:
   - 6.1.2
 ctng_mpfr:
@@ -28,8 +28,6 @@ ctng_mpc:
   - 1.0.3
 ctng_ncurses:
   - 6.0
-ctng_gdb:
-  - 7.12.1
 ctng_duma:
   - 2.5.15
 ctng_vendor:
